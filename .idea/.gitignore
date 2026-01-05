@@ -1,0 +1,12 @@
+.name
+
+/*.xml
+
+/dictionaries/
+/httpRequests/
+/dataSources/
+/shelf/
+/modules/
+/jpb/
+
+!/encodings.xml
