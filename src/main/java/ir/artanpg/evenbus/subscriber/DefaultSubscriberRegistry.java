@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Default implementation of the {@link SubscriberRegistry} interface.
@@ -70,7 +69,6 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class DefaultSubscriberRegistry implements SubscriberRegistry {
 
-    private final AtomicLong registrationCounter = new AtomicLong(0);
     private final Map<String, List<EventListenerRecord>> subscriptions = new ConcurrentHashMap<>();
 
     @Override
@@ -89,10 +87,9 @@ public class DefaultSubscriberRegistry implements SubscriberRegistry {
         eventListenerRecords.add(listenerRecord);
 
         eventListenerRecords.sort(Comparator
-                .comparingInt((EventListenerRecord eventListenerRecord) -> eventListenerRecord.listener().priority())
-                .thenComparingLong(
-                        eventListenerRecord -> (eventListenerRecord.equals(listenerRecord)) ?
-                                registrationCounter.incrementAndGet() : eventListenerRecord.registrationNumber()));
+                .comparingInt((EventListenerRecord eventListenerRecord) ->
+                        eventListenerRecord.listener().priority()).reversed()
+                .thenComparingLong(EventListenerRecord::registrationNumber));
     }
 
     @Override
