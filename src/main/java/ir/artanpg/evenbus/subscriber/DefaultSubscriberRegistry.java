@@ -32,7 +32,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * <p>All operations are thread-safe. Multiple threads can register, remove, and
  * retrieve listeners concurrently without external synchronization.</p>
  *
- * <h3>Ordering Example:</h3>
+ * <p><b>Ordering Example:</b></p>
  * <pre>
  * {@code
  * // Assuming all listeners have default priority (0)
@@ -44,7 +44,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * }
  * </pre>
  *
- * <h3>Usage Example:</h3>
+ * <p><b>Usage Example:</b></p>
  * <pre>
  * {@code
  * SubscriberRegistry registry = new DefaultSubscriberRegistry();

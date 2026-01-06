@@ -49,7 +49,6 @@ public interface EventListener {
      *   <li>The method should not modify the source or other properties of the
      *       {@link Event} unless explicitly allowed by the event contract.</li>
      * </ul>
-     * </p>
      *
      * @param event the event to process, must not be {@code null}
      */

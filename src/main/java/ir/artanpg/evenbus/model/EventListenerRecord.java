@@ -14,6 +14,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * instances, allowing them to be treated as first-class objects with enhanced
  * capabilities.
  *
+ * @param listener           the wrapped event listener
+ * @param registrationNumber the unique registration number for ordering purposes
  * @author Mohammad Yazdian
  * @see EventListener
  */
