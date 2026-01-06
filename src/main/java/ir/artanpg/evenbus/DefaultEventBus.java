@@ -1,11 +1,11 @@
 package ir.artanpg.evenbus;
 
-import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import ir.artanpg.evenbus.model.Event;
 import ir.artanpg.evenbus.model.EventListener;
 import ir.artanpg.evenbus.model.EventListenerRecord;
 import ir.artanpg.evenbus.subscriber.SubscriberRegistry;
+import ir.artanpg.evenbus.metric.EventBusMetricsMonitor;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -25,30 +25,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * <p><b>Thread Safety:</b> This implementation is thread-safe. Subscriber registration,
  * removal, and event publication can be safely called from multiple threads concurrently.</p>
- *
- * <h2>Metrics Collected:</h2>
- * <table border="1">
- *   <tr>
- *     <th>Metric Name</th>
- *     <th>Description</th>
- *     <th>Tags</th>
- *   </tr>
- *   <tr>
- *     <td>eventbus.published</td>
- *     <td>Count of published events</td>
- *     <td>topic, type, bus</td>
- *   </tr>
- *   <tr>
- *     <td>eventbus.success</td>
- *     <td>Count of successfully processed events</td>
- *     <td>topic, eventType, identifier, timestamp, source, bus</td>
- *   </tr>
- *   <tr>
- *     <td>eventbus.listener.error</td>
- *     <td>Count of listener processing errors</td>
- *     <td>type, bus</td>
- *   </tr>
- * </table>
  *
  * <h2>Usage Example:</h2>
  * <pre>
@@ -80,17 +56,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class DefaultEventBus extends AbstractEventBus {
 
-    private static final String EVENT_BUS_NAME = "simple";
-
-    /**
-     * Metrics registry for collecting event bus metrics.
-     */
-    private final MeterRegistry meterRegistry;
-
     /**
      * Registry for managing event subscribers and their topics.
      */
     private final SubscriberRegistry subscriberRegistry;
+
+    private final EventBusMetricsMonitor eventBusMetricsMonitor;
 
     /**
      * Constructs a DefaultEventBus with the specified dependencies.
@@ -102,8 +73,8 @@ public class DefaultEventBus extends AbstractEventBus {
     protected DefaultEventBus(MeterRegistry meterRegistry, SubscriberRegistry subscriberRegistry) {
         super(meterRegistry, subscriberRegistry);
 
-        this.meterRegistry = meterRegistry;
         this.subscriberRegistry = subscriberRegistry;
+        this.eventBusMetricsMonitor = EventBusMetricsMonitor.of(meterRegistry);
     }
 
     @Override
@@ -114,12 +85,7 @@ public class DefaultEventBus extends AbstractEventBus {
     @Override
     public void publish(String topic, Event event) {
         // Record publication metrics
-        Counter.builder("eventbus.published")
-                .tag("topic", topic)
-                .tag("type", event.getType().getSimpleName())
-                .tag("bus", EVENT_BUS_NAME)
-                .register(meterRegistry)
-                .increment();
+        eventBusMetricsMonitor.eventPublishedCounter(topic, event);
 
         // Get listeners for the topic
         List<EventListenerRecord> eventListenerRecords = subscriberRegistry.get(topic);
@@ -141,26 +107,14 @@ public class DefaultEventBus extends AbstractEventBus {
                     eventListenerRecord.listener().process(event);
 
                     // Record successful processing
-                    Counter.builder("eventbus.success")
-                            .tag("topic", event.getName())
-                            .tag("eventType", event.getEventType().getTitle())
-                            .tag("identifier", event.getIdentifier())
-                            .tag("timestamp", event.timestamp().toString())
-                            .tag("source", event.getSource().toString())
-                            .tag("bus", EVENT_BUS_NAME)
-                            .register(meterRegistry)
-                            .increment();
+                    eventBusMetricsMonitor.eventDeliveredCounter(topic, event);
                 } catch (Exception ex) {
                     // Handle listener error
                     getLogger().error("Error invoking handler: {}", eventListenerRecord.listener().getClass(), ex);
                     eventListenerRecord.exceptionHandler().handle(ex, event);
 
                     // Record error metrics
-                    Counter.builder("eventbus.listener.error")
-                            .tag("type", event.getType().getSimpleName())
-                            .tag("bus", EVENT_BUS_NAME)
-                            .register(meterRegistry)
-                            .increment();
+                    eventBusMetricsMonitor.eventDeadCounter(topic, event);
                 }
             }
         });
