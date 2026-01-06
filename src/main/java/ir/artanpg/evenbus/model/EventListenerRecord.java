@@ -96,6 +96,6 @@ public record EventListenerRecord(EventListener listener, Long registrationNumbe
      * @see EventListenerRecord#EventListenerRecord(EventListener, Long)
      */
     public EventListenerRecord andThen(EventListener after) {
-        return new EventListenerRecord(listener.andThen(after), globalCounter.incrementAndGet());
+        return new EventListenerRecord(listener.andThen(after), registrationNumber);
     }
 }
