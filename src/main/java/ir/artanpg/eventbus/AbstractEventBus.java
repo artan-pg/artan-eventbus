@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  * </ul>
  *
  * <p>This class uses a single-threaded executor by default to ensure
- * sequential event processing, but can be configured with custom executors for
+ * sequential event processing but can be configured with custom executors for
  * different concurrency models.
  *
  * <p>All executor operations are automatically monitored through Micrometer's
@@ -61,7 +61,8 @@ public abstract class AbstractEventBus implements EventBus {
     private ExecutorService executorService;
 
     /**
-     * Constructs an AbstractEventBus with default single-threaded executor.
+     * Constructs an AbstractEventBus with the default single-threaded
+     * executor.
      *
      * <p>The executor is configured as a daemon thread and monitored through
      * the provided {@link MeterRegistry}.
@@ -91,7 +92,7 @@ public abstract class AbstractEventBus implements EventBus {
     /**
      * Constructs an AbstractEventBus with a custom executor service.
      *
-     * <p>Use this constructor when specific thread pool configuration is
+     * <p>Use this constructor when a specific thread pool configuration is
      * required.
      *
      * @param meterRegistry      the metrics registry for monitoring executor performance

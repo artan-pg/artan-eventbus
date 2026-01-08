@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * delivery, and dead events in an EventBus system using Micrometer.
  *
  * <p>The monitor uses Micrometer for metrics collection and provides three
- * primary counter types:
+ * primary counter-types:
  * <ul>
  *   <li><b>Published Event</b>: Count of events published to the EventBus</li>
  *   <li><b>Successful Event</b>: Count of events successfully processed by
@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p><b>Thread Safety:</b> This class is thread-safe and uses double-checked
  * locking for singleton initialization, along with concurrent collections for
- * counter caching.
+ * counter-caching.
  *
  * <p><b>Default Tags:</b> All metrics automatically include these tags:
  * <ul>
@@ -58,7 +58,7 @@ public final class EventBusMetricsMonitor {
     public static final String EVENT_DEAD_NAME = "eventbus.event.dead";
 
     /**
-     * Thread-safe cache of counter instances keyed by their unique Meter.Id
+     * Thread-safe cache of counter-instances keyed by their unique Meter.Id
      * This cache prevents repeated registry lookups and improves performance
      */
     private final Map<Meter.Id, Counter> countersCache = new ConcurrentHashMap<>();
@@ -71,8 +71,6 @@ public final class EventBusMetricsMonitor {
     /**
      * Constructs a new EventBusMetricsMonitor instance with the specified
      * registry.
-     *
-     * <p>Create one instance per {@link MeterRegistry} you need to monitor.
      *
      * @param meterRegistry the metrics registry to use for all metric operations
      * @throws NullPointerException if {@code meterRegistry} is {@code null}
@@ -108,8 +106,8 @@ public final class EventBusMetricsMonitor {
     }
 
     /**
-     * Increments the published events counter with custom tags
-     * This metric tracks events that have been published to the EventBus
+     * Increments the published events counter with custom tags.
+     * This metric tracks events that have been published to the EventBus.
      *
      * @param topic the event topic
      * @param event the event instance
@@ -135,8 +133,7 @@ public final class EventBusMetricsMonitor {
 
     /**
      * Increments the successfully delivered events counter with custom tags.
-     * This metric tracks events that have been successfully processed by
-     * listeners.
+     * This metric tracks events that listeners have successfully processed.
      *
      * @param topic the event topic
      * @param event the event instance
@@ -231,8 +228,9 @@ public final class EventBusMetricsMonitor {
     }
 
     /**
-     * Increments or creates a counter with caching
-     * This method ensures that counter instances are reused to improve performance
+     * Increments or creates a counter with caching.
+     * This method ensures that counter-instances are reused to improve
+     * performance.
      *
      * @param name        the metric name
      * @param description the metric description

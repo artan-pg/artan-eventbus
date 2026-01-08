@@ -57,7 +57,7 @@ public interface SubscriberRegistry {
      * After registration, the listener will receive events published to this
      * topic.
      *
-     * <p><b>Implementation Notes:</b></p>
+     * <p><b>Implementation Notes:</b>
      * <ul>
      *   <li>If the same listener is registered multiple times for the same
      *   topic, implementations may choose to ignore duplicates or register
@@ -93,10 +93,10 @@ public interface SubscriberRegistry {
 
     /**
      * Removes an event listener from a specific topic.
-     * After removal, the listener will no longer receive events published to
+     * After removal, the listener will no longer receive events published on
      * this topic.
      *
-     * <p><b>Implementation Notes:</b></p>
+     * <p><b>Implementation Notes:</b>
      * <ul>
      *   <li>If the listener is not registered for the given topic, this method
      *   should have no effect (idempotent operation).</li>
@@ -119,7 +119,7 @@ public interface SubscriberRegistry {
     /**
      * Retrieves all registered event listeners for a specific topic.
      *
-     * <p><b>Implementation Notes:</b></p>
+     * <p><b>Implementation Notes:</b>
      * <ul>
      *   <li>The returned list should be a snapshot or a thread-safe view of
      *   the current listeners to avoid concurrent modification issues.</li>
@@ -132,9 +132,7 @@ public interface SubscriberRegistry {
      * </ul>
      *
      * @param topic the topic to query
-     * @return an immutable or thread-safe list of {@link EventListenerRecord}
-     * objects for the specified topic. returns empty list if no listeners are
-     * registered.
+     * @return an immutable or thread-safe list of {@link EventListenerRecord} objects for the specified topic
      * @throws IllegalArgumentException if {@code topic} is {@code null} or {@code blank}
      * @see EventListenerRecord
      */

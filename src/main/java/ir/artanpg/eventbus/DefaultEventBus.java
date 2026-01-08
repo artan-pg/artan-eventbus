@@ -21,10 +21,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * </ul>
  *
  * <p>Events are published to specific topics, and listeners subscribe to topics
- * they're interested in. The "default" topic is used when no specific topic is provided.</p>
+ * they're interested in. The "default" topic is used when no specific topic is
+ * provided.
  *
- * <p><b>Thread Safety:</b> This implementation is thread-safe. Subscriber registration,
- * removal, and event publication can be safely called from multiple threads concurrently.</p>
+ * <p><b>Thread Safety:</b> This implementation is thread-safe. Subscriber
+ * registration, removal, and event publication can be safely called from
+ * multiple threads concurrently.
  *
  * <h2>Usage Example:</h2>
  * <pre>
@@ -96,7 +98,7 @@ public class DefaultEventBus extends AbstractEventBus {
             return;
         }
 
-        // Create thread-safe copy to avoid concurrent modification issues
+        // Create a thread-safe copy to avoid concurrent modification issues
         List<EventListenerRecord> eventListenerRecordsCopy = new CopyOnWriteArrayList<>(eventListenerRecords);
 
         // Process event asynchronously

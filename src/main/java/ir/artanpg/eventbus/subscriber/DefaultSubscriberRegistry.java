@@ -14,7 +14,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * This class manages event listener subscriptions with topic-based
  * organization, thread-safe operations, and priority-based ordering.
  *
- * <p><b>Key Features:</b></p>
+ * <p><b>Key Features:</b>
  * <ul>
  *   <li>Thread-safe implementation using {@link ConcurrentHashMap} and
  *   {@link CopyOnWriteArrayList}</li>
@@ -22,17 +22,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *   <li>Default topic support for convenience methods</li>
  * </ul>
  *
- * <p><b>Listener Ordering:</b></p>
+ * <p><b>Listener Ordering:</b>
  * <p>Listeners are ordered primarily by their priority (ascending order,
- * higher values first).
- * For listeners with equal priority, registration order is preserved using a monotonically
- * increasing counter.</p>
+ * higher values first). For listeners with equal priority, the registration
+ * order is preserved using a monotonically increasing counter.
  *
- * <p><b>Thread Safety:</b></p>
- * <p>All operations are thread-safe. Multiple threads can register, remove, and
- * retrieve listeners concurrently without external synchronization.</p>
+ * <p><b>Thread Safety:</b>
+ * <p>All operations are thread-safe. Multiple threads can register, remove,
+ * and retrieve listeners concurrently without external synchronization.
  *
- * <p><b>Ordering Example:</b></p>
+ * <p><b>Ordering Example:</b>
  * <pre>
  * {@code
  * // Assuming all listeners have default priority (0)
@@ -44,7 +43,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * }
  * </pre>
  *
- * <p><b>Usage Example:</b></p>
+ * <p><b>Usage Example:</b>
  * <pre>
  * {@code
  * SubscriberRegistry registry = new DefaultSubscriberRegistry();
