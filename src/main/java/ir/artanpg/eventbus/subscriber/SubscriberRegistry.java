@@ -1,7 +1,7 @@
-package ir.artanpg.evenbus.subscriber;
+package ir.artanpg.eventbus.subscriber;
 
-import ir.artanpg.evenbus.model.EventListener;
-import ir.artanpg.evenbus.model.EventListenerRecord;
+import ir.artanpg.eventbus.model.EventListener;
+import ir.artanpg.eventbus.model.EventListenerRecord;
 
 import java.util.List;
 

@@ -1,11 +1,11 @@
-package ir.artanpg.evenbus;
+package ir.artanpg.eventbus;
 
 import io.micrometer.core.instrument.MeterRegistry;
-import ir.artanpg.evenbus.model.Event;
-import ir.artanpg.evenbus.model.EventListener;
-import ir.artanpg.evenbus.model.EventListenerRecord;
-import ir.artanpg.evenbus.subscriber.SubscriberRegistry;
-import ir.artanpg.evenbus.metric.EventBusMetricsMonitor;
+import ir.artanpg.eventbus.model.Event;
+import ir.artanpg.eventbus.model.EventListener;
+import ir.artanpg.eventbus.model.EventListenerRecord;
+import ir.artanpg.eventbus.subscriber.SubscriberRegistry;
+import ir.artanpg.eventbus.metric.EventBusMetricsMonitor;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;

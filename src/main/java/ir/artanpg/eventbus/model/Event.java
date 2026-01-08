@@ -1,4 +1,4 @@
-package ir.artanpg.evenbus.model;
+package ir.artanpg.eventbus.model;
 
 import java.io.Serializable;
 

@@ -1,8 +1,8 @@
-package ir.artanpg.evenbus;
+package ir.artanpg.eventbus;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;
-import ir.artanpg.evenbus.subscriber.SubscriberRegistry;
+import ir.artanpg.eventbus.subscriber.SubscriberRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

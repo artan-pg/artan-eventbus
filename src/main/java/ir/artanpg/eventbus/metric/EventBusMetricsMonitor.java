@@ -1,4 +1,4 @@
-package ir.artanpg.evenbus.metric;
+package ir.artanpg.eventbus.metric;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Meter;
@@ -6,7 +6,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Tags;
 import ir.artanpg.commons.core.tools.jacoco.Generated;
-import ir.artanpg.evenbus.model.Event;
+import ir.artanpg.eventbus.model.Event;
 
 import java.util.List;
 import java.util.Map;

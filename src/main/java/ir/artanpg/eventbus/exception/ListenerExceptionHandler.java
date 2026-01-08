@@ -1,7 +1,7 @@
-package ir.artanpg.evenbus.exception;
+package ir.artanpg.eventbus.exception;
 
-import ir.artanpg.evenbus.model.Event;
-import ir.artanpg.evenbus.model.EventListener;
+import ir.artanpg.eventbus.model.Event;
+import ir.artanpg.eventbus.model.EventListener;
 
 /**
  * A handler for managing exceptions that occur during event listener

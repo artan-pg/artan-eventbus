@@ -1,7 +1,7 @@
-package ir.artanpg.evenbus.model;
+package ir.artanpg.eventbus.model;
 
 import ir.artanpg.commons.core.identifier.IdentifierGenerator;
-import ir.artanpg.evenbus.exception.ListenerExceptionHandler;
+import ir.artanpg.eventbus.exception.ListenerExceptionHandler;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;

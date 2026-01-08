@@ -1,8 +1,8 @@
-package ir.artanpg.evenbus;
+package ir.artanpg.eventbus;
 
-import ir.artanpg.evenbus.model.Event;
-import ir.artanpg.evenbus.model.EventListener;
-import ir.artanpg.evenbus.subscriber.SubscriberRegistry;
+import ir.artanpg.eventbus.model.Event;
+import ir.artanpg.eventbus.model.EventListener;
+import ir.artanpg.eventbus.subscriber.SubscriberRegistry;
 
 /**
  * Interface for implementing the Event Bus pattern.

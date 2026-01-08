@@ -1,4 +1,4 @@
-package ir.artanpg.evenbus.model;
+package ir.artanpg.eventbus.model;
 
 /**
  * Represents a type or category of an event in the system.
