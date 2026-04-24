@@ -5,6 +5,7 @@ import ir.artanpg.eventbus.exception.InvalidTopicException;
 import ir.artanpg.eventbus.model.EventListener;
 import ir.artanpg.eventbus.model.EventListenerRecord;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -88,6 +89,15 @@ public class DefaultSubscriberRegistry implements SubscriberRegistry {
 
         // Return an immutable snapshot (copy) to avoid concurrent modification
         return List.copyOf(listenerSet);
+    }
+
+    @Override
+    public Map<String, List<EventListenerRecord>> getAll() {
+        Map<String, List<EventListenerRecord>> snapshot = new HashMap<>();
+        for (Map.Entry<String, ConcurrentSkipListSet<EventListenerRecord>> entry : subscriptions.entrySet()) {
+            snapshot.put(entry.getKey(), List.copyOf(entry.getValue()));
+        }
+        return Map.copyOf(snapshot);
     }
 
     @Override

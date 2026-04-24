@@ -8,6 +8,7 @@ import ir.artanpg.eventbus.model.EventListener;
 import ir.artanpg.eventbus.model.EventListenerRecord;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Registry for managing event listener subscriptions organized by topics.
@@ -141,6 +142,25 @@ public interface SubscriberRegistry {
      * @see EventListenerRecord
      */
     List<EventListenerRecord> get(String topic);
+
+    /**
+     * Returns an immutable snapshot of all registered topics and their
+     * listeners.
+     *
+     * <p>This method is intended for debugging, monitoring, and testing
+     * purposes. It creates a point-in-time copy of the entire registry state.
+     *
+     * <p>The returned map is immutable. Each topic maps to an immutable list
+     * of {@link EventListenerRecord} objects, ordered by priority (descending)
+     * and registration order.
+     *
+     * <p><b>Performance note:</b> This method iterates over all topics and
+     * copies all listener references. It should not be called frequently in
+     * performance-critical paths.
+     *
+     * @return an immutable map with topic names as keys and immutable lists of listener records as values
+     */
+    Map<String, List<EventListenerRecord>> getAll();
 
     /**
      * Removes all event listeners registered for the specified topic.
