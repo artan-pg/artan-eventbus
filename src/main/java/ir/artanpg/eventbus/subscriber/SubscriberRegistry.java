@@ -143,6 +143,34 @@ public interface SubscriberRegistry {
     List<EventListenerRecord> get(String topic);
 
     /**
+     * Removes all event listeners registered for the specified topic.
+     *
+     * <p>After this method returns, the topic will have no associated
+     * listeners. Any events published to this topic will be treated as having
+     * no subscribers.
+     *
+     * <p><b>Idempotency:</b> This operation is idempotent. Calling
+     * {@code clear} on a topic that already has no listeners (or was never
+     * registered) has no effect and does not throw an exception (provided the
+     * topic name is valid).
+     *
+     * <p><b>Thread Safety:</b> This method is thread-safe. Concurrent calls to
+     * {@code clear}, {@link #register(String, EventListener)},
+     * {@link #remove(String, EventListener)}, or {@link #get(String)} on the
+     * same topic are safe and will see a consistent state.
+     *
+     * <p><b>Relationship with {@link #clearAll()}:</b> This method clears only
+     * the specified topic, while {@code clearAll()} removes all topics and
+     * their listeners.
+     *
+     * @param topic the topic to clear (must not be null or blank)
+     * @throws InvalidTopicException if {@code topic} is {@code null} or {@code blank}
+     * @see #clearAll()
+     * @see #remove(String, EventListener)
+     */
+    void clear(String topic);
+
+    /**
      * Removes all listeners from all topics.
      *
      * <p>After calling this method, the registry will be empty. This is

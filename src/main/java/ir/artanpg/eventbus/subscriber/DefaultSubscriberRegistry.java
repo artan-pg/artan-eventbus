@@ -91,6 +91,12 @@ public class DefaultSubscriberRegistry implements SubscriberRegistry {
     }
 
     @Override
+    public void clear(String topic) {
+        if (topic == null || topic.isBlank()) throw new InvalidTopicException("Topic cannot be null or empty");
+        subscriptions.remove(topic);
+    }
+
+    @Override
     public void clearAll() {
         subscriptions.clear();
     }
