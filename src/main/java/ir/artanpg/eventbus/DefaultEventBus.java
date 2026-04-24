@@ -9,6 +9,7 @@ import ir.artanpg.eventbus.subscriber.SubscriberRegistry;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * Default implementation of the {@link EventBus} interface.
@@ -58,11 +59,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class DefaultEventBus extends AbstractEventBus {
 
-    /**
-     * Registry for managing event subscribers and their topics.
-     */
-    private final SubscriberRegistry subscriberRegistry;
-
     private final EventBusMetricsMonitor eventBusMetricsMonitor;
 
     /**
@@ -72,10 +68,9 @@ public class DefaultEventBus extends AbstractEventBus {
      * @param subscriberRegistry the registry for managing event subscribers
      * @throws IllegalArgumentException if {@code meterRegistry} or {@code subscriberRegistry} is {@code null}
      */
-    protected DefaultEventBus(MeterRegistry meterRegistry, SubscriberRegistry subscriberRegistry) {
+    public DefaultEventBus(MeterRegistry meterRegistry, SubscriberRegistry subscriberRegistry) {
         super(meterRegistry, subscriberRegistry);
 
-        this.subscriberRegistry = subscriberRegistry;
         this.eventBusMetricsMonitor = EventBusMetricsMonitor.of(meterRegistry);
     }
 
@@ -92,7 +87,7 @@ public class DefaultEventBus extends AbstractEventBus {
         eventBusMetricsMonitor.eventPublishedCounter(topic, event);
 
         // Get listeners for the topic
-        List<EventListenerRecord> eventListenerRecords = subscriberRegistry.get(topic);
+        List<EventListenerRecord> eventListenerRecords = getSubscriberRegistry().get(topic);
         if (eventListenerRecords == null || eventListenerRecords.isEmpty()) {
             if (getLogger().isTraceEnabled()) {
                 getLogger().trace("No listeners are registered for event {}", event.getType().getSimpleName());
@@ -100,28 +95,31 @@ public class DefaultEventBus extends AbstractEventBus {
             return;
         }
 
-        // Create a thread-safe copy to avoid concurrent modification issues
-        List<EventListenerRecord> eventListenerRecordsCopy = new CopyOnWriteArrayList<>(eventListenerRecords);
-
         // Process event asynchronously
-        getExecutorService().execute(() -> {
-            for (EventListenerRecord eventListenerRecord : eventListenerRecordsCopy) {
-                try {
-                    // Invoke listener
-                    eventListenerRecord.listener().process(event);
+        try {
+            getExecutorService().execute(() -> {
+                for (EventListenerRecord eventListenerRecord : eventListenerRecords) {
+                    try {
+                        // Invoke listener
+                        eventListenerRecord.listener().process(event);
 
-                    // Record successful processing
-                    eventBusMetricsMonitor.eventDeliveredCounter(topic, event);
-                } catch (Exception ex) {
-                    // Handle listener error
-                    getLogger().error("Error invoking handler: {}", eventListenerRecord.listener().getClass(), ex);
-                    eventListenerRecord.exceptionHandler().handle(ex, event);
+                        // Record successful processing
+                        eventBusMetricsMonitor.eventDeliveredCounter(topic, event);
+                    } catch (Exception ex) {
+                        // Handle listener error
+                        getLogger().error("Error invoking handler: {}", eventListenerRecord.listener().getClass(), ex);
+                        eventListenerRecord.exceptionHandler().handle(ex, event);
 
-                    // Record error metrics
-                    eventBusMetricsMonitor.eventDeadCounter(topic, event);
+                        // Record error metrics
+                        eventBusMetricsMonitor.eventDeadCounter(topic, event);
+                    }
                 }
-            }
-        });
+            });
+        } catch (RejectedExecutionException e) {
+            getLogger().error("Event rejected by executor service: topic={}, event={}",
+                    topic, event.getType().getSimpleName(), e);
+            eventBusMetricsMonitor.eventDeadCounter(topic, event);
+        }
     }
 
     @Override
@@ -132,12 +130,12 @@ public class DefaultEventBus extends AbstractEventBus {
     @Override
     public void registerSubscribe(String topic, EventListener eventListener) {
         checkNotShutdown();
-        subscriberRegistry.register(topic, eventListener);
+        getSubscriberRegistry().register(topic, eventListener);
     }
 
     @Override
     public void removeSubscribe(String topic, EventListener eventListener) {
         checkNotShutdown();
-        subscriberRegistry.remove(topic, eventListener);
+        getSubscriberRegistry().remove(topic, eventListener);
     }
 }
