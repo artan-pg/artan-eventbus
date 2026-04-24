@@ -1,5 +1,8 @@
 package ir.artanpg.eventbus.subscriber;
 
+import ir.artanpg.eventbus.exception.EventBusException;
+import ir.artanpg.eventbus.exception.InvalidEventListenerException;
+import ir.artanpg.eventbus.exception.InvalidTopicException;
 import ir.artanpg.eventbus.model.EventListener;
 import ir.artanpg.eventbus.model.EventListenerRecord;
 
@@ -47,7 +50,7 @@ public interface SubscriberRegistry {
      * published to the default topic, not all topics.
      *
      * @param eventListener the listener to register for the default topic
-     * @throws IllegalArgumentException if {@code eventListener} is {@code null}
+     * @throws InvalidEventListenerException if {@code eventListener} is {@code null}
      * @see #register(String, EventListener)
      */
     void register(EventListener eventListener);
@@ -63,15 +66,15 @@ public interface SubscriberRegistry {
      *   topic, implementations may choose to ignore duplicates or register
      *   multiple instances.</li>
      *   <li>The behavior for null parameters is implementation-defined but
-     *   should typically throw {@link IllegalArgumentException}.</li>
+     *   should typically throw {@link EventBusException}.</li>
      *   <li>Registration should be an atomic operation to ensure thread
      *   safety.</li>
      * </ul>
      *
      * @param topic         the topic to subscribe to
      * @param eventListener the listener to register
-     * @throws IllegalArgumentException if {@code topic} is {@code null} or {@code blank}
-     * @throws IllegalArgumentException if {@code eventListener}is {@code null}
+     * @throws InvalidTopicException         if {@code topic} is {@code null} or {@code blank}
+     * @throws InvalidEventListenerException if {@code eventListener}is {@code null}
      * @see #remove(String, EventListener)
      * @see EventListenerRecord
      */
@@ -86,7 +89,7 @@ public interface SubscriberRegistry {
      * {@code remove("default", eventListener)}.
      *
      * @param eventListener the listener to remove from the default topic
-     * @throws IllegalArgumentException if {@code eventListener} is {@code null}
+     * @throws InvalidTopicException if {@code eventListener} is {@code null}
      * @see #remove(String, EventListener)
      */
     void remove(EventListener eventListener);
@@ -109,8 +112,8 @@ public interface SubscriberRegistry {
      *
      * @param topic         the topic to unsubscribe from
      * @param eventListener the listener to remove
-     * @throws IllegalArgumentException if {@code topic} is {@code null} or {@code blank}
-     * @throws IllegalArgumentException if {@code eventListener}is {@code null}
+     * @throws InvalidTopicException         if {@code topic} is {@code null} or {@code blank}
+     * @throws InvalidEventListenerException if {@code eventListener}is {@code null}
      * @see #register(String, EventListener)
      * @see EventListenerRecord
      */
@@ -133,7 +136,7 @@ public interface SubscriberRegistry {
      *
      * @param topic the topic to query
      * @return an immutable or thread-safe list of {@link EventListenerRecord} objects for the specified topic
-     * @throws IllegalArgumentException if {@code topic} is {@code null} or {@code blank}
+     * @throws InvalidTopicException if {@code topic} is {@code null} or {@code blank}
      * @see EventListenerRecord
      */
     List<EventListenerRecord> get(String topic);

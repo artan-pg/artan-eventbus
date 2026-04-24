@@ -1,5 +1,7 @@
 package ir.artanpg.eventbus.subscriber;
 
+import ir.artanpg.eventbus.exception.InvalidEventListenerException;
+import ir.artanpg.eventbus.exception.InvalidTopicException;
 import ir.artanpg.eventbus.model.EventListener;
 import ir.artanpg.eventbus.model.EventListenerRecord;
 
@@ -111,17 +113,13 @@ public class DefaultSubscriberRegistry implements SubscriberRegistry {
 
     @Override
     public List<EventListenerRecord> get(String topic) {
-        if (topic == null || topic.isBlank()) throw new IllegalArgumentException("The topic cannot be null or empty");
+        if (topic == null || topic.isBlank()) throw new InvalidTopicException("The topic cannot be null or empty");
 
         return subscriptions.getOrDefault(topic, List.of());
     }
 
     private void validateParameters(String topic, EventListener eventListener) {
-        if (topic == null || topic.isBlank()) {
-            throw new IllegalArgumentException("Topic cannot be null or empty");
-        }
-        if (eventListener == null) {
-            throw new IllegalArgumentException("EventListener cannot be null");
-        }
+        if (topic == null || topic.isBlank()) throw new InvalidTopicException("Topic cannot be null or empty");
+        if (eventListener == null) throw new InvalidEventListenerException("EventListener cannot be null");
     }
 }
