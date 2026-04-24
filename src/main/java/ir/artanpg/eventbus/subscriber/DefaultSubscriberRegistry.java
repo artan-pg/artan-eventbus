@@ -104,7 +104,7 @@ public class DefaultSubscriberRegistry implements SubscriberRegistry {
 
         List<EventListenerRecord> eventListenerRecordList = subscriptions.get(topic);
         if (eventListenerRecordList != null) {
-            eventListenerRecordList.remove(EventListenerRecord.of(eventListener));
+            eventListenerRecordList.removeIf(eventListenerRecord -> eventListenerRecord.listener() == eventListener);
             if (eventListenerRecordList.isEmpty()) {
                 subscriptions.remove(topic);
             }
