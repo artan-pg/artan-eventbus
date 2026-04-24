@@ -5,63 +5,23 @@ import ir.artanpg.eventbus.exception.InvalidTopicException;
 import ir.artanpg.eventbus.model.EventListener;
 import ir.artanpg.eventbus.model.EventListenerRecord;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * Default implementation of the {@link SubscriberRegistry} interface.
- * This class manages event listener subscriptions with topic-based
- * organization, thread-safe operations, and priority-based ordering.
  *
  * <p><b>Key Features:</b>
  * <ul>
  *   <li>Thread-safe implementation using {@link ConcurrentHashMap} and
- *   {@link CopyOnWriteArrayList}</li>
+ *   {@link ConcurrentSkipListSet}</li>
+ *   <li>Listeners are automatically maintained in sorted order by priority
+ *   (higher first) and registration order via {@link EventListenerRecord#compareTo}</li>
  *   <li>Automatic cleanup of empty topic entries</li>
- *   <li>Default topic support for convenience methods</li>
  * </ul>
- *
- * <p><b>Listener Ordering:</b>
- * <p>Listeners are ordered primarily by their priority (ascending order,
- * higher values first). For listeners with equal priority, the registration
- * order is preserved using a monotonically increasing counter.
- *
- * <p><b>Thread Safety:</b>
- * <p>All operations are thread-safe. Multiple threads can register, remove,
- * and retrieve listeners concurrently without external synchronization.
- *
- * <p><b>Ordering Example:</b>
- * <pre>
- * {@code
- * // Assuming all listeners have default priority (0)
- * registry.register("topic", listener1); // Registered first
- * registry.register("topic", listener2); // Registered second
- * registry.register("topic", listener3); // Registered third
- *
- * // Order when retrieved: [listener1, listener2, listener3]
- * }
- * </pre>
- *
- * <p><b>Usage Example:</b>
- * <pre>
- * {@code
- * SubscriberRegistry registry = new DefaultSubscriberRegistry();
- *
- * // Register listeners with different priorities
- * EventListener highPriorityListener = new HighPriorityListener();
- * EventListener normalListener = new NormalListener();
- *
- * registry.register("user.events", highPriorityListener);
- * registry.register("user.events", normalListener);
- *
- * // Get ordered listeners for a topic
- * List<EventListenerRecord> listeners = registry.get("user.events");
- * // highPriorityListener comes before normalListener
- * }
- * </pre>
  *
  * @author Mohammad Yazdian
  * @see EventListener
@@ -70,7 +30,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class DefaultSubscriberRegistry implements SubscriberRegistry {
 
-    private final Map<String, List<EventListenerRecord>> subscriptions = new ConcurrentHashMap<>();
+    private final Map<String, ConcurrentSkipListSet<EventListenerRecord>> subscriptions = new ConcurrentHashMap<>();
 
     @Override
     public void register(EventListener eventListener) {
@@ -81,16 +41,10 @@ public class DefaultSubscriberRegistry implements SubscriberRegistry {
     public void register(String topic, EventListener eventListener) {
         validateParameters(topic, eventListener);
 
-        List<EventListenerRecord> eventListenerRecords =
-                subscriptions.computeIfAbsent(topic, s -> new CopyOnWriteArrayList<>());
+        ConcurrentSkipListSet<EventListenerRecord> listenerSet =
+                subscriptions.computeIfAbsent(topic, s -> new ConcurrentSkipListSet<>());
 
-        EventListenerRecord listenerRecord = EventListenerRecord.of(eventListener);
-        eventListenerRecords.add(listenerRecord);
-
-        eventListenerRecords.sort(Comparator
-                .comparingInt((EventListenerRecord eventListenerRecord) ->
-                        eventListenerRecord.listener().priority()).reversed()
-                .thenComparingLong(EventListenerRecord::registrationNumber));
+        listenerSet.add(EventListenerRecord.of(eventListener));
     }
 
     @Override
@@ -102,12 +56,26 @@ public class DefaultSubscriberRegistry implements SubscriberRegistry {
     public void remove(String topic, EventListener eventListener) {
         validateParameters(topic, eventListener);
 
-        List<EventListenerRecord> eventListenerRecordList = subscriptions.get(topic);
-        if (eventListenerRecordList != null) {
-            eventListenerRecordList.removeIf(eventListenerRecord -> eventListenerRecord.listener() == eventListener);
-            if (eventListenerRecordList.isEmpty()) {
-                subscriptions.remove(topic);
+        ConcurrentSkipListSet<EventListenerRecord> listenerSet = subscriptions.get(topic);
+        if (listenerSet != null) {
+            // Find the record that wraps the given listener
+            // Since EventListenerRecord uses listener in compareTo, we need to create a dummy record
+            // that matches based on listener identity? Better to iterate and remove by equality of listener.
+            // ConcurrentSkipListSet doesn't have removeIf, but we can find and remove.
+            // Using iterator is safe because we are not modifying while iterating? The set is concurrent.
+            // However, the efficient way: create a dummy record with the same listener?
+            // But registrationNumber will be wrong, so compareTo won't match.
+            // So we need to remove based on the actual reference.
+            // Option: iterate over the set and remove the one with matching listener.
+            // Since the set is concurrent, and removal is rare compared to registration, it's acceptable.
+            for (EventListenerRecord eventListenerRecord : listenerSet) {
+                if (Objects.equals(eventListenerRecord.listener(), eventListener)) {
+                    listenerSet.remove(eventListenerRecord);
+                    break;
+                }
             }
+            // Clean up empty set
+            if (listenerSet.isEmpty()) subscriptions.remove(topic);
         }
     }
 
@@ -115,7 +83,11 @@ public class DefaultSubscriberRegistry implements SubscriberRegistry {
     public List<EventListenerRecord> get(String topic) {
         if (topic == null || topic.isBlank()) throw new InvalidTopicException("The topic cannot be null or empty");
 
-        return subscriptions.getOrDefault(topic, List.of());
+        ConcurrentSkipListSet<EventListenerRecord> listenerSet = subscriptions.get(topic);
+        if (listenerSet == null || listenerSet.isEmpty()) return List.of();
+
+        // Return an immutable snapshot (copy) to avoid concurrent modification
+        return List.copyOf(listenerSet);
     }
 
     private void validateParameters(String topic, EventListener eventListener) {

@@ -10,16 +10,16 @@ import java.util.concurrent.atomic.AtomicLong;
  * A value-based record that wraps an {@link EventListener} to provide
  * additional functionality and type safety.
  *
- * <p>This record acts as a wrapper or container for {@link EventListener}
- * instances, allowing them to be treated as first-class objects with enhanced
- * capabilities.
+ * <p>Implements {@link Comparable} to allow natural ordering based on priority
+ * (higher first) and registration number (older first).
  *
  * @param listener           the wrapped event listener
  * @param registrationNumber the unique registration number for ordering purposes
  * @author Mohammad Yazdian
  * @see EventListener
  */
-public record EventListenerRecord(EventListener listener, Long registrationNumber) {
+public record EventListenerRecord(EventListener listener,
+                                  Long registrationNumber) implements Comparable<EventListenerRecord> {
     private static final AtomicLong globalCounter = new AtomicLong(0);
 
     /**
@@ -99,5 +99,26 @@ public record EventListenerRecord(EventListener listener, Long registrationNumbe
      */
     public EventListenerRecord andThen(EventListener after) {
         return new EventListenerRecord(listener.andThen(after), registrationNumber);
+    }
+
+    /**
+     * Compares this record with another for ordering.
+     *
+     * <p>Ordering is primarily by priority in <b>descending</b> order
+     * (higher priority first), and then by registrationNumber in
+     * <b>ascending</b> order (older first).
+     *
+     * @param other the other record to compare to
+     * @return a negative integer, zero, or a positive integer as this record is less than, equal to,
+     * or greater than the other.
+     */
+    @Override
+    public int compareTo(EventListenerRecord other) {
+        // Higher priority first -> descending
+        int priorityCompare = Integer.compare(other.priority(), this.priority());
+        if (priorityCompare != 0) return priorityCompare;
+
+        // Lower registration number first -> ascending
+        return Long.compare(this.registrationNumber, other.registrationNumber);
     }
 }
