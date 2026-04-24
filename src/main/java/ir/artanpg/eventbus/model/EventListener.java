@@ -135,9 +135,27 @@ public interface EventListener {
      */
     default EventListener andThen(EventListener after) {
         Objects.requireNonNull(after);
-        return (Event event) -> {
-            process(event);
-            after.process(event);
+        return new EventListener() {
+            @Override
+            public void process(Event event) {
+                EventListener.this.process(event);
+                after.process(event);
+            }
+
+            @Override
+            public int priority() {
+                return EventListener.this.priority();
+            }
+
+            @Override
+            public IdentifierGenerator identifier() {
+                return EventListener.this.identifier();
+            }
+
+            @Override
+            public ListenerExceptionHandler exceptionHandler() {
+                return EventListener.this.exceptionHandler();
+            }
         };
     }
 }
