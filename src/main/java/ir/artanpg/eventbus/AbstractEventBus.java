@@ -2,6 +2,7 @@ package ir.artanpg.eventbus;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;
+import ir.artanpg.eventbus.exception.EventBusShutdownException;
 import ir.artanpg.eventbus.subscriber.SubscriberRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,11 @@ public abstract class AbstractEventBus implements EventBus {
      * Logger instance for this class.
      */
     private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    /**
+     * Indicates whether this EventBus instance has been shut down.
+     */
+    private volatile boolean shutdown = false;
 
     /**
      * Metrics registry for monitoring executor performance.
@@ -114,6 +120,14 @@ public abstract class AbstractEventBus implements EventBus {
 
     @Override
     public void shutdown() {
+        if (shutdown) {
+            return;
+        }
+
+        shutdown = true;
+
+        getSubscriberRegistry().clearAll();
+
         executorService.shutdown();
         try {
             if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
@@ -164,5 +178,28 @@ public abstract class AbstractEventBus implements EventBus {
      */
     protected ExecutorService getExecutorService() {
         return executorService;
+    }
+
+    /**
+     * Checks whether the EventBus has been shut down and throws an exception
+     * if so.
+     *
+     * <p>This method should be called at the beginning of all public
+     * operations that are not allowed after shutdown, such as event
+     * publishing, subscriber registration, and removal.
+     *
+     * <p>If the {@code shutdown} flag is {@code true}, an
+     * {@link EventBusShutdownException} is thrown to prevent any further
+     * interaction with the EventBus instance.
+     *
+     * @throws EventBusShutdownException if the EventBus has already been shut down
+     * @see #shutdown()
+     * @see EventBusShutdownException
+     */
+    protected void checkNotShutdown() {
+        if (shutdown) {
+            throw new EventBusShutdownException("EventBus has been shut down. No new events can be published, " +
+                    "registered, or unsubscribed.");
+        }
     }
 }

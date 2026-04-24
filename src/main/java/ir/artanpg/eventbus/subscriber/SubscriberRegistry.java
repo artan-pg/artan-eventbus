@@ -1,5 +1,6 @@
 package ir.artanpg.eventbus.subscriber;
 
+import ir.artanpg.eventbus.EventBus;
 import ir.artanpg.eventbus.exception.EventBusException;
 import ir.artanpg.eventbus.exception.InvalidEventListenerException;
 import ir.artanpg.eventbus.exception.InvalidTopicException;
@@ -140,4 +141,13 @@ public interface SubscriberRegistry {
      * @see EventListenerRecord
      */
     List<EventListenerRecord> get(String topic);
+
+    /**
+     * Removes all listeners from all topics.
+     *
+     * <p>After calling this method, the registry will be empty. This is
+     * typically called during {@link EventBus#shutdown()} to clean up
+     * resources.
+     */
+    void clearAll();
 }

@@ -90,6 +90,11 @@ public class DefaultSubscriberRegistry implements SubscriberRegistry {
         return List.copyOf(listenerSet);
     }
 
+    @Override
+    public void clearAll() {
+        subscriptions.clear();
+    }
+
     private void validateParameters(String topic, EventListener eventListener) {
         if (topic == null || topic.isBlank()) throw new InvalidTopicException("Topic cannot be null or empty");
         if (eventListener == null) throw new InvalidEventListenerException("EventListener cannot be null");

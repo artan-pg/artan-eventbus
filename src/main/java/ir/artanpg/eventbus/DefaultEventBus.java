@@ -1,11 +1,11 @@
 package ir.artanpg.eventbus;
 
 import io.micrometer.core.instrument.MeterRegistry;
+import ir.artanpg.eventbus.metric.EventBusMetricsMonitor;
 import ir.artanpg.eventbus.model.Event;
 import ir.artanpg.eventbus.model.EventListener;
 import ir.artanpg.eventbus.model.EventListenerRecord;
 import ir.artanpg.eventbus.subscriber.SubscriberRegistry;
-import ir.artanpg.eventbus.metric.EventBusMetricsMonitor;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -86,6 +86,8 @@ public class DefaultEventBus extends AbstractEventBus {
 
     @Override
     public void publish(String topic, Event event) {
+        checkNotShutdown();
+
         // Record publication metrics
         eventBusMetricsMonitor.eventPublishedCounter(topic, event);
 
@@ -129,11 +131,13 @@ public class DefaultEventBus extends AbstractEventBus {
 
     @Override
     public void registerSubscribe(String topic, EventListener eventListener) {
+        checkNotShutdown();
         subscriberRegistry.register(topic, eventListener);
     }
 
     @Override
     public void removeSubscribe(String topic, EventListener eventListener) {
+        checkNotShutdown();
         subscriberRegistry.remove(topic, eventListener);
     }
 }
