@@ -59,24 +59,8 @@ public class DefaultSubscriberRegistry implements SubscriberRegistry {
 
         ConcurrentSkipListSet<EventListenerRecord> listenerSet = subscriptions.get(topic);
         if (listenerSet != null) {
-            // Find the record that wraps the given listener
-            // Since EventListenerRecord uses listener in compareTo, we need to create a dummy record
-            // that matches based on listener identity? Better to iterate and remove by equality of listener.
-            // ConcurrentSkipListSet doesn't have removeIf, but we can find and remove.
-            // Using iterator is safe because we are not modifying while iterating? The set is concurrent.
-            // However, the efficient way: create a dummy record with the same listener?
-            // But registrationNumber will be wrong, so compareTo won't match.
-            // So we need to remove based on the actual reference.
-            // Option: iterate over the set and remove the one with matching listener.
-            // Since the set is concurrent, and removal is rare compared to registration, it's acceptable.
-            for (EventListenerRecord eventListenerRecord : listenerSet) {
-                if (Objects.equals(eventListenerRecord.listener(), eventListener)) {
-                    listenerSet.remove(eventListenerRecord);
-                    break;
-                }
-            }
-            // Clean up empty set
-            if (listenerSet.isEmpty()) subscriptions.remove(topic);
+            boolean removed = listenerSet.removeIf(o -> Objects.equals(o.listener(), eventListener));
+            if (removed && listenerSet.isEmpty()) subscriptions.remove(topic);
         }
     }
 

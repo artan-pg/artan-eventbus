@@ -121,4 +121,19 @@ public record EventListenerRecord(EventListener listener,
         // Lower registration number first -> ascending
         return Long.compare(this.registrationNumber, other.registrationNumber);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        EventListenerRecord that = (EventListenerRecord) o;
+
+        return Objects.equals(listener, that.listener);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(listener);
+    }
 }
