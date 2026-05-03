@@ -9,6 +9,7 @@ import ir.artanpg.eventbus.subscriber.SubscriberRegistry;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 
 /**
@@ -71,6 +72,24 @@ public class DefaultEventBus extends AbstractEventBus {
     public DefaultEventBus(MeterRegistry meterRegistry, SubscriberRegistry subscriberRegistry) {
         super(meterRegistry, subscriberRegistry);
 
+        this.eventBusMetricsMonitor = EventBusMetricsMonitor.of(meterRegistry);
+    }
+
+    /**
+     * Constructs a DefaultEventBus with a custom executor service.
+     *
+     * <p>This constructor allows full control over the threading model used for
+     * event processing. It is primarily used by {@link EventBusBuilder}.
+     *
+     * @param meterRegistry      the metrics registry for collecting event bus metrics
+     * @param executorService    the executor service to use for asynchronous event processing
+     * @param subscriberRegistry the registry for managing event subscribers
+     * @throws IllegalArgumentException if any parameter is {@code null}
+     */
+    public DefaultEventBus(MeterRegistry meterRegistry,
+                           ExecutorService executorService,
+                           SubscriberRegistry subscriberRegistry) {
+        super(meterRegistry, executorService, subscriberRegistry);
         this.eventBusMetricsMonitor = EventBusMetricsMonitor.of(meterRegistry);
     }
 
