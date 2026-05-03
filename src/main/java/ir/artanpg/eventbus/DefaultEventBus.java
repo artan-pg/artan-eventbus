@@ -8,7 +8,7 @@ import ir.artanpg.eventbus.model.EventListenerRecord;
 import ir.artanpg.eventbus.subscriber.SubscriberRegistry;
 
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.RejectedExecutionException;
 
 /**
@@ -17,7 +17,7 @@ import java.util.concurrent.RejectedExecutionException;
  * <ul>
  *   <li>Topic-based event routing</li>
  *   <li>Comprehensive metrics collection via Micrometer</li>
- *   <li>Thread-safe subscriber management using {@link CopyOnWriteArrayList}</li>
+ *   <li>Thread-safe subscriber management using {@link ConcurrentSkipListSet}</li>
  *   <li>Error handling with configurable exception handlers</li>
  * </ul>
  *
